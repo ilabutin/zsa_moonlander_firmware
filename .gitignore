@@ -1,3 +1,6 @@
+# QMK firmware
+*.bin
+
 # Prerequisites
 *.d
 
