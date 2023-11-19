@@ -21,37 +21,149 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
+// New macro for my own keycodes. Using CUSTOM_SAFE_RANGE as lang_shift module requires it.
+#define CUSTOM_SAFE_RANGE ML_SAFE_RANGE
+
+// Use modules
+#include "lang_shift/include.h"
+
+// Handy macro for better (not-so-wide) layout definition
+#define MY_layout( \
+    k00, k01, k02, k03, k04, k05, k06, \
+    k10, k11, k12, k13, k14, k15, k16, \
+    k20, k21, k22, k23, k24, k25, k26, \
+    k30, k31, k32, k33, k34, k35,      \
+    k40, k41, k42, k43, k44,           \
+    k53, \
+    k50, k51, k52, \
+    \
+    k60, k61, k62, k63, k64, k65, k66, \
+    k70, k71, k72, k73, k74, k75, k76, \
+    k80, k81, k82, k83, k84, k85, k86, \
+    k91, k92, k93, k94, k95, k96, \
+    ka2, ka3, ka4, ka5, ka6, \
+    kb3,\
+    kb4, kb5, kb6 \
+) \
+LAYOUT_moonlander( \
+    k00, k01, k02, k03, k04, k05, k06,   k60, k61, k62, k63, k64, k65, k66, \
+    k10, k11, k12, k13, k14, k15, k16,   k70, k71, k72, k73, k74, k75, k76, \
+    k20, k21, k22, k23, k24, k25, k26,   k80, k81, k82, k83, k84, k85, k86, \
+    k30, k31, k32, k33, k34, k35,             k91, k92, k93, k94, k95, k96, \
+    k40, k41, k42, k43, k44,      k53,   kb3,      ka2, ka3, ka4, ka5, ka6, \
+                        k50, k51, k52,   kb4, kb5, kb6 \
+)
+
+// List of keyboard layers
 enum layers {
-    BASE,  // default layer
-    SYMB,  // symbols
-    MDIA,  // media keys
+    // Next 4 layers are required exactly in this order for lang_shift module to work
+    L_EN = 0,  // Base English
+    L_EN_S,    // English with Shift
+    L_RU,      // Base Russian
+    L_RU_S,    // Russian with Shift
+
+    // Here new layers can be added
+
+    L_SPECIAL, // The special layer: various configuration keycodes
 };
+
+// Macro for layer modificators
+#define MO_SPCL MO(L_SPECIAL)
 
 enum custom_keycodes {
-    VRSN = ML_SAFE_RANGE,
+    VRSN = CUSTOM_SAFE_RANGE,
 };
 
+// List of keymaps for each layer
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [BASE] = LAYOUT_moonlander(
-        KC_EQL,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_LEFT,           KC_RGHT, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
-        KC_DEL,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    TG(SYMB),         TG(SYMB), KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
-        KC_BSPC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_HYPR,           KC_MEH,  KC_H,    KC_J,    KC_K,    KC_L,    LT(MDIA, KC_SCLN), LGUI_T(KC_QUOT),
-        KC_LSFT, LCTL_T(KC_Z),KC_X,KC_C,    KC_V,    KC_B,                                KC_N,    KC_M,    KC_COMM, KC_DOT,  RCTL_T(KC_SLSH), KC_RSFT,
-    LT(SYMB,KC_GRV),WEBUSB_PAIR,A(KC_LSFT),KC_LEFT, KC_RGHT,  LALT_T(KC_APP),    RCTL_T(KC_ESC),   KC_UP,   KC_DOWN, KC_LBRC, KC_RBRC, MO(SYMB),
-                                            KC_SPC,  KC_BSPC, KC_LGUI,           KC_LALT,  KC_TAB,  KC_ENT
+    
+    // Base English
+    [L_EN] = MY_layout( 
+        /* LEFT HALF */ 
+        KC_ESC,  AG_EXCL, EN_AT,   EN_HASH, EN_DLR,  AG_PERC, AG_DQUO, 
+        KC_TAB,  EN_Q,    EN_W,    EN_E,    EN_R,    EN_T,    KC_GRV, 
+        SFT_N_O, EN_A,    EN_S,    EN_D,    EN_F,    EN_G,    EN_EQL, 
+        SFT_N,   EN_Z,    EN_X,    EN_C,    EN_V,    EN_B, 
+        KC_LCTL, KC_LGUI, KC_LALT, _______, _______, 
+        KC_DEL, /* LEFT RED THUMB KEY */ 
+        SFT_N,   KC_BSPC, KC_LCTL, /* LEFT THUMB KEYS */ 
+        
+        /* RIGHT HALF */ 
+        EN_CIRC, AG_SCLN, EN_AMPR, AG_ASTR, AG_COLN, AG_QUES, EN_SLSH, 
+        AG_PLUS, EN_Y,    EN_U,    EN_I,    EN_O,    EN_P,    EN_BSLS, 
+        AG_MINS, EN_H,    EN_J,    EN_K,    EN_L,    EN_SCLN, EN_QUOT, 
+                 EN_N,    EN_M,    EN_COMM, EN_DOT,  EN_SLSH, XXXXXXX, 
+                          _______, _______, WIN_EN,  _______, MO_SPCL, 
+                          KC_LALT, /* RIGHT RED THUMB KEY */ 
+                          KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
     ),
 
-    [SYMB] = LAYOUT_moonlander(
-        VRSN,    KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,           _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        _______, KC_EXLM, KC_AT,   KC_LCBR, KC_RCBR, KC_PIPE, _______,           _______, KC_UP,   KC_7,    KC_8,    KC_9,    KC_ASTR, KC_F12,
-        _______, KC_HASH, KC_DLR,  KC_LPRN, KC_RPRN, KC_GRV,  _______,           _______, KC_DOWN, KC_4,    KC_5,    KC_6,    KC_PLUS, _______,
-        _______, KC_PERC, KC_CIRC, KC_LBRC, KC_RBRC, KC_TILD,                             KC_AMPR, KC_1,    KC_2,    KC_3,    KC_BSLS, _______,
-        EEP_RST, _______, _______, _______, _______,          RGB_VAI,           RGB_TOG,          _______, KC_DOT,  KC_0,    KC_EQL,  _______,
-                                            RGB_HUD, RGB_VAD, RGB_HUI, TOGGLE_LAYER_COLOR,_______, _______
+    // English with Shift
+    [L_EN_S] = MY_layout( 
+        /* LEFT HALF */ 
+        KC_ESC,  AG_EXCL, EN_AT,   RU_NUME, EN_DLR,  AG_PERC, EN_QUOT, 
+        KC_TAB,  EN_S_Q,  EN_S_W,  EN_S_E,  EN_S_R,  EN_S_T,  KC_GRV, 
+        SFT_N_O, EN_S_A,  EN_S_S,  EN_S_D,  EN_S_F,  EN_S_G,  EN_EQL, 
+        SFT_N,   EN_S_Z,  EN_S_X,  EN_S_C,  EN_S_V,  EN_S_B, 
+        KC_LCTL, KC_LGUI, KC_LALT, _______, _______, 
+        KC_DEL, /* LEFT RED THUMB KEY */ 
+        SFT_N,   KC_BSPC, KC_LCTL, /* LEFT THUMB KEYS */ 
+        
+        /* RIGHT HALF */ 
+        EN_TILD, AG_SCLN, EN_AMPR, AG_ASTR, AG_COLN, AG_QUES, EN_BSLS, 
+        AG_PLUS, EN_S_Y,  EN_S_U,  EN_S_I,  EN_S_O,  EN_S_P,  EN_PIPE, 
+        AG_MINS, EN_S_H,  EN_S_J,  EN_S_K,  EN_S_L,  EN_COLN, EN_DQUO, 
+                 EN_S_N,  EN_S_M,  EN_LT,   EN_GT,   EN_QUES, XXXXXXX, 
+                          _______, _______, WIN_EN,  _______, MO_SPCL, 
+                          KC_LALT, /* RIGHT RED THUMB KEY */ 
+                          KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
+    ),
+    
+    // Base Russian
+    [L_RU] = MY_layout( 
+        /* LEFT HALF */ 
+        KC_ESC,  AG_EXCL, EN_AT,   EN_HASH, EN_DLR,  AG_PERC, AG_DQUO, 
+        KC_TAB,  RU_J,    RU_TS,   RU_U,    RU_K,    RU_JE,   KC_GRV, 
+        SFT_N_O, RU_F,    RU_Y,    RU_V,    RU_A,    RU_P,    RU_EQL, 
+        SFT_N,   RU_JA,   RU_CH,   RU_S,    RU_M,    RU_I, 
+        KC_LCTL, KC_LGUI, KC_LALT, _______, _______, 
+        KC_DEL, /* LEFT RED THUMB KEY */ 
+        SFT_N,   KC_BSPC, KC_LCTL, /* LEFT THUMB KEYS */ 
+        
+        /* RIGHT HALF */ 
+        EN_CIRC, AG_SCLN, EN_AMPR, AG_ASTR, AG_COLN, AG_QUES, EN_SLSH, 
+        AG_PLUS, RU_N,    RU_G,    RU_SH,   RU_SC,   RU_Z,    RU_H, 
+        AG_MINS, RU_R,    RU_O,    RU_L,    RU_D,    RU_ZH,   RU_E, 
+                 RU_T,    RU_SF,   RU_B,    RU_JU,   RU_DOT,  XXXXXXX, 
+                          _______, _______, WIN_EN,  _______, MO_SPCL, 
+                          KC_LALT, /* RIGHT RED THUMB KEY */ 
+                          KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
     ),
 
-    [MDIA] = LAYOUT_moonlander(
+    // Russian with Shift
+    [L_RU_S] = MY_layout( 
+        /* LEFT HALF */ 
+        KC_ESC,  AG_EXCL, EN_AT,   RU_NUME, EN_DLR,  AG_PERC, EN_QUOT, 
+        KC_TAB,  RU_S_J,  RU_S_TS, RU_S_U,  RU_S_K,  RU_S_JE, KC_GRV, 
+        SFT_N_O, RU_S_F,  RU_S_Y,  RU_S_V,  RU_S_A,  RU_S_P,  RU_EQL, 
+        SFT_N,   RU_S_JA, RU_S_CH, RU_S_S,  RU_S_M,  RU_S_I, 
+        KC_LCTL, KC_LGUI, KC_LALT, _______, _______, 
+        KC_DEL, /* LEFT RED THUMB KEY */ 
+        SFT_N,   KC_BSPC, KC_LCTL, /* LEFT THUMB KEYS */ 
+        
+        /* RIGHT HALF */ 
+        EN_TILD, AG_SCLN, EN_AMPR, AG_ASTR, AG_COLN, AG_QUES, EN_BSLS, 
+        AG_PLUS, RU_S_N,  RU_S_G,  RU_S_SH, RU_S_SC, RU_S_Z,  RU_S_H, 
+        AG_MINS, RU_S_R,  RU_S_O,  RU_S_L,  RU_S_D,  RU_S_ZH, RU_S_E, 
+                 RU_S_T,  RU_S_SF, RU_S_B,  RU_S_JU, RU_COMM, XXXXXXX, 
+                          _______, _______, WIN_EN,  _______, MO_SPCL, 
+                          KC_LALT, /* RIGHT RED THUMB KEY */ 
+                          KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
+    ),
+
+    // Special layer mostly for configuration keycodes
+    [L_SPECIAL] = LAYOUT_moonlander(
         LED_LEVEL,_______,_______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, QK_BOOT,
         _______, _______, _______, KC_MS_U, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
         _______, _______, KC_MS_L, KC_MS_D, KC_MS_R, _______, _______,           _______, _______, _______, _______, _______, _______, KC_MPLY,
@@ -61,7 +173,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+// Main keycode press/release handling function
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!lang_shift_process_record(keycode, record))
+        return false;
+
     if (record->event.pressed) {
         switch (keycode) {
         case VRSN:
@@ -70,4 +186,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
     return true;
+}
+
+// "Timer" handling function - for quick reaction for events when we can't rely on keypresses.
+// (E.g. automatic key release after timeout, "forget" recent keypresses in sequences)
+вательностях)
+void user_timer(void) {
+    lang_shift_user_timer();
+}
+
+// Main keyboard matrix scan function.
+// It is called often and regularly, so we use it for our "timers".
+void matrix_scan_user(void) {
+    user_timer();
 }
