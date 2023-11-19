@@ -19,3 +19,9 @@
 #pragma once
 
 //#define ORYX_CONFIGURATOR
+
+#define LANG_CHANGE_DEFAULT LANG_CHANGE_CAPS
+
+#ifdef AUDIO_ENABLE
+#    define STARTUP_SONG SONG(NO_SOUND)
+#endif

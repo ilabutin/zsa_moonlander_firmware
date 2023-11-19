@@ -1,3 +1,6 @@
 [submodule "qmk_firmware"]
 	path = qmk_firmware
 	url = git@github.com:zsa/qmk_firmware.git
+[submodule "custom/lang_shift"]
+	path = custom/lang_shift
+	url = git@github.com:ilabutin/lang_shift.git
