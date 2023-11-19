@@ -21,13 +21,13 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
-// Определяем новый макрос для собственных кейкодов, т.к. именно такой используется в подключаемых модулях
+// New macro for my own keycodes. Using CUSTOM_SAFE_RANGE as lang_shift module requires it.
 #define CUSTOM_SAFE_RANGE ML_SAFE_RANGE
 
-// Подключаем модули
+// Use modules
 #include "lang_shift/include.h"
 
-// Макрос для более удобного описание раскладки (левая половина и потом ниже правая половина)
+// Handy macro for better (not-so-wide) layout definition
 #define MY_layout( \
     k00, k01, k02, k03, k04, k05, k06, \
     k10, k11, k12, k13, k14, k15, k16, \
@@ -54,30 +54,31 @@ LAYOUT_moonlander( \
                         k50, k51, k52,   kb4, kb5, kb6 \
 )
 
-// Список слоёв клавиатуры
+// List of keyboard layers
 enum layers {
-    // 4 слоя именно в этом порядке нужны для модуля lang_shift
-    L_EN = 0,  // Базовый английский
-    L_EN_S,    // Английский с шифтом
-    L_RU,      // Базовый русский
-    L_RU_S,    // Русский с шифтом
+    // Next 4 layers are required exactly in this order for lang_shift module to work
+    L_EN = 0,  // Base English
+    L_EN_S,    // English with Shift
+    L_RU,      // Base Russian
+    L_RU_S,    // Russian with Shift
 
-    // Сюда можно добавлять новые слои
+    // Here new layers can be added
 
-    L_SPECIAL, // Последний спецслой
+    L_SPECIAL, // The special layer: various configuration keycodes
 };
 
-// Макросы для переключения слоёв
+// Macro for layer modificators
 #define MO_SPCL MO(L_SPECIAL)
 
 enum custom_keycodes {
     VRSN = CUSTOM_SAFE_RANGE,
 };
 
-// Список раскладок для каждого слоя
+// List of keymaps for each layer
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    // Английский без шифта
+    
+    // Base English
     [L_EN] = MY_layout( 
         /* LEFT HALF */ 
         KC_ESC,  AG_EXCL, EN_AT,   EN_HASH, EN_DLR,  AG_PERC, AG_DQUO, 
@@ -119,7 +120,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
     ),
     
-    // Russian without Shift
+    // Base Russian
     [L_RU] = MY_layout( 
         /* LEFT HALF */ 
         KC_ESC,  AG_EXCL, EN_AT,   EN_HASH, EN_DLR,  AG_PERC, AG_DQUO, 
@@ -140,6 +141,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
     ),
 
+    // Russian with Shift
     [L_RU_S] = MY_layout( 
         /* LEFT HALF */ 
         KC_ESC,  AG_EXCL, EN_AT,   RU_NUME, EN_DLR,  AG_PERC, EN_QUOT, 
@@ -160,6 +162,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           KC_ENT,  LA_CHNG, KC_SPC /* RIGHT THUMB KEYS */ 
     ),
 
+    // Special layer mostly for configuration keycodes
     [L_SPECIAL] = LAYOUT_moonlander(
         LED_LEVEL,_______,_______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, QK_BOOT,
         _______, _______, _______, KC_MS_U, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
@@ -170,7 +173,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
-// Основная функция обработки нажатий
+// Main keycode press/release handling function
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!lang_shift_process_record(keycode, record))
         return false;
@@ -185,14 +188,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// Функций обработки "таймеров" - для быстрой реакции на события, когда нет нажатий
-// (например, автоматическое отпускание клавиш, "забывание" прошлых нажатий в последовательностях)
+// "Timer" handling function - for quick reaction for events when we can't rely on keypresses.
+// (E.g. automatic key release after timeout, "forget" recent keypresses in sequences)
+вательностях)
 void user_timer(void) {
     lang_shift_user_timer();
 }
 
-// Основная функция сканирования матрицы клавиатуры.
-// Вызывается часто, поэтому служит для вызова "таймеров" в нашем коде
+// Main keyboard matrix scan function.
+// It is called often and regularly, so we use it for our "timers".
 void matrix_scan_user(void) {
     user_timer();
 }
