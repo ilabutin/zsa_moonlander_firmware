@@ -22,7 +22,7 @@
 #include "version.h"
 
 // New macro for my own keycodes. Using CUSTOM_SAFE_RANGE as lang_shift module requires it.
-#define CUSTOM_SAFE_RANGE ML_SAFE_RANGE
+#define CUSTOM_SAFE_RANGE SAFE_RANGE
 
 // Use modules
 #include "lang_shift/include.h"
@@ -72,6 +72,7 @@ enum layers {
 
 enum custom_keycodes {
     VRSN = CUSTOM_SAFE_RANGE,
+    LANG_M,
 };
 
 // List of keymaps for each layer
@@ -173,6 +174,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+const uint16_t PROGMEM test_combo1[] = {AG_PLUS, AG_MINS, COMBO_END};
+const uint16_t PROGMEM test_combo2[] = {LA_CHNG, KC_SPC, COMBO_END};
+combo_t key_combos[] = {
+    COMBO(test_combo1, AG_UNDS),
+    COMBO(test_combo2, AG_PLUS),
+};
+
+void press_arbitrary_keycode(uint16_t keycode, bool down) {
+	keyrecord_t record = {
+	  .event = {
+	    .key = {
+	      .col = 255,
+	      .row = 0,
+	    },
+	    .pressed = down,
+	    .time = timer_read(),
+	  },
+      .keycode = keycode,
+	};
+
+	process_record(&record);
+}
+
 // Main keycode press/release handling function
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!lang_shift_process_record(keycode, record))
@@ -190,7 +214,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // "Timer" handling function - for quick reaction for events when we can't rely on keypresses.
 // (E.g. automatic key release after timeout, "forget" recent keypresses in sequences)
-вательностях)
 void user_timer(void) {
     lang_shift_user_timer();
 }

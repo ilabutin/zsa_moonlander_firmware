@@ -18,7 +18,7 @@
 
 #pragma once
 
-//#define ORYX_CONFIGURATOR
+#define PERMISSIVE_HOLD
 
 #define LANG_CHANGE_DEFAULT LANG_CHANGE_CAPS
 
