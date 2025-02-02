@@ -177,8 +177,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 const uint16_t PROGMEM test_combo1[] = {AG_PLUS, AG_MINS, COMBO_END};
 const uint16_t PROGMEM test_combo2[] = {LA_CHNG, KC_SPC, COMBO_END};
 combo_t key_combos[] = {
-    COMBO(test_combo1, AG_UNDS),
-    COMBO(test_combo2, AG_PLUS),
+    COMBO(test_combo1, MO_SPCL),
+    COMBO(test_combo2, LA_SYNC),
 };
 
 void press_arbitrary_keycode(uint16_t keycode, bool down) {
